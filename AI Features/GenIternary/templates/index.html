@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itinerary Generator</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style> -->
+</head>
+<body>
+    <div class="container">
+        <h1>Create Your Personalized Itinerary</h1>
+        <form action="/generate_itinerary" method="post">
+            <div class="form-group">
+                <label for="duration">Travel Duration (in days):</label>
+                <input type="number" class="form-control" name="duration" required>
+            </div>
+
+            <div class="form-group">
+                <label for="destinations">Destinations (Cities/Regions):</label>
+                <input type="text" class="form-control" name="destinations" required>
+            </div>
+
+            <div class="form-group">
+                <label for="budget">Budget (Luxury, Mid-range, Budget):</label>
+                <input type="text" class="form-control" name="budget" required>
+            </div>
+
+            <div class="form-group">
+                <label for="interests">Interests (Culture, Adventure, Nature, Beaches, Historical sites, Food experiences):</label>
+                <input type="text" class="form-control" name="interests" required>
+            </div>
+
+            <div class="form-group">
+                <label for="travel_style">Travel Style (Slow-paced, Moderate, Fast-paced):</label>
+                <input type="text" class="form-control" name="travel_style" required>
+            </div>
+
+            <div class="form-group">
+                <label for="previous_visits">Previous Visits (Any places you want to avoid):</label>
+                <input type="text" class="form-control" name="previous_visits">
+            </div>
+
+            <div class="form-group">
+                <label for="food_preferences">Food Preferences (Vegetarian, Vegan, Allergies):</label>
+                <input type="text" class="form-control" name="food_preferences">
+            </div>
+
+            <div class="form-group">
+                <label for="traveling_with">Traveling with (Family, Solo, Friends, Partner):</label>
+                <input type="text" class="form-control" name="traveling_with" required>
+            </div>
+
+            <div class="form-group">
+                <label for="hidden_gems">Do you want to explore hidden gems? (Yes/No):</label>
+                <input type="text" class="form-control" name="hidden_gems" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cultural_tips">Are you interested in local culture and trivia? (Yes/No):</label>
+                <input type="text" class="form-control" name="cultural_tips" required>
+            </div>
+
+            <div class="form-group">
+                <label for="events">Do you want to know about local events/activities? (Yes/No):</label>
+                <input type="text" class="form-control" name="events" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Generate Itinerary</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
