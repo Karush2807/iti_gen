@@ -213,6 +213,3 @@ def get_groq_response(prompt):
         # Catch any other exceptions
         raise Exception(f"Error: An unexpected error occurred. Exception: {e}")
 
-
-if __name__ == '__main__':
-    app.run(debug=True)

@@ -1,6 +1,4 @@
-streamlit==1.7.0
-geopy==2.2.0
-timezonefinder==5.3.1
-pytz==2022.1
+Flask==2.0.3
 requests==2.26.0
-streamlit-lottie==0.1.2
+python-dotenv==0.19.2
+flask-cors==3.0.10
