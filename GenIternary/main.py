@@ -2,15 +2,17 @@ import os
 import requests
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Load environment variables from .env
 load_dotenv()
 
 # Set API key and base URL for GroQ API
 API_KEY = os.getenv('API_KEY', 'undefined')
-GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Set your LocationIQ API key
 LOCATIONIQ_API_KEY = os.getenv('LOCATIONIQ_API_KEY', 'undefined')  
@@ -28,6 +30,7 @@ def home():
 
 # Helper function to get weather based on destination
 def get_weather(location):
+    
     # Use the location parameter directly here
     current_weather_url = f'{BASE_URL}/current.json?key={WEATHER_API_KEY}&q={location}&aqi=yes'
     forecast_url = f'{BASE_URL}/forecast.json?key={WEATHER_API_KEY}&q={location}&days=7&aqi=yes'
@@ -99,8 +102,7 @@ def generate_itinerary():
     # Fetch weather data for the selected destination
     weather_data = get_weather(destination)
 
-    # Initialize weather_details as an empty list
-    weather_details = []
+    weather_details = []  # Initialize weather_details as an empty list
 
     # Check if weather data is valid
     if 'error' not in weather_data:
@@ -142,19 +144,19 @@ def generate_itinerary():
         Weather Information for {destination}:
         {weather_details}
 
-        Please generate an itinerary that includes places to visit, recommended activities, and suggestions         Please generate an itinerary that includes places to visit, recommended activities, and suggestions for meals based on this information.
-for meals based on this information.
+        Please generate an itinerary that includes places to visit, recommended activities, and suggestions for meals based on this information.
         """
 
         try:
             # Fetch the itinerary from the GroQ API based on the prompt
             itinerary = get_groq_response(prompt)
 
-            # Format the itinerary output
-            formatted_itinerary = str(itinerary) if isinstance(itinerary, str) else 'No itinerary available'
+            # Split itinerary by day (assuming the returned itinerary uses "Day X" format)
+            days = itinerary.split('Day ')[1:]  # Splits the text, ignoring the first empty string
+            days = [f'Day {day}' for day in days]  # Adding 'Day ' back to each day
 
             # Render the itinerary HTML page
-            return render_template('itinerary.html', itinerary=formatted_itinerary, weather_data=weather_details, destination=destination)
+            return render_template('itinerary.html', itinerary=days, weather_data=weather_details, destination=destination)
         
         except requests.exceptions.RequestException as e:
             return jsonify({'error': f'Error: Could not connect to GroQ API. Exception: {e}'}), 500
@@ -163,33 +165,53 @@ for meals based on this information.
 
     else:
         # Handle case where weather data is unavailable
-        return jsonify({'error': 'Weather data unavailable.'}), 400  # Ensure a response is returned here
+        return jsonify({'error': 'Weather data unavailable.'}), 400
 
 def get_groq_response(prompt):
-    headers = {'Authorization': f'Bearer {API_KEY}'}
+    headers = {
+        'Authorization': f'Bearer {API_KEY}',
+        'Content-Type': 'application/json'  # Make sure the Content-Type is specified
+    }
 
-    # Prepare data for the request
+    # Prepare the data for the request
     data = {
         "model": "llama3-8b-8192",  # Specify your model here
         "messages": [
             {"role": "system", "content": "You are a helpful assistant who creates travel itineraries for the user"},
             {"role": "user", "content": prompt}
         ],
-        "max_tokens": 5000,  # Adjust based on how detailed the itinerary needs to be
+        "max_tokens": 5000,  # Adjust this value based on the length of the desired output
         "stop": [" End of itinerary."]
     }
 
-    # Make the POST request to the GroQ API
-    response = requests.post(GROQ_API_URL, headers=headers, json=data)
+    try:
+        # Make the POST request to the GroQ API
+        response = requests.post(GROQ_API_URL, headers=headers, json=data)
 
-    # Parse the response from GroQ API
-    if response.status_code == 200:
-        response_json = response.json()
-        print(response_json)  # Print full response for debugging
-        # Extract the content from the response
-        return response_json['choices'][0]['message']['content']
-    else:
-        raise Exception(f"Error: {response.status_code} - {response.text}")
+        # Check if the request was successful (HTTP 200)
+        if response.status_code == 200:
+            response_json = response.json()
+
+            # Log the full response for debugging purposes
+            print(response_json)
+
+            # Extract and return the content from the response safely
+            if 'choices' in response_json and response_json['choices']:
+                return response_json['choices'][0]['message']['content']
+            else:
+                return "Error: No content returned in the API response."
+
+        else:
+            # Raise an exception with detailed error information
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+    except requests.exceptions.RequestException as e:
+        # Handle any network-related errors
+        raise Exception(f"Error: Could not connect to GroQ API. Exception: {e}")
+
+    except Exception as e:
+        # Catch any other exceptions
+        raise Exception(f"Error: An unexpected error occurred. Exception: {e}")
 
 
 if __name__ == '__main__':
